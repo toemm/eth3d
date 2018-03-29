@@ -1,6 +1,0 @@
-/* display: block rendert canvas auf maximale Höhe des Browsers ohne Rand*/
-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}

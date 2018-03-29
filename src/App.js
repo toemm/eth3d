@@ -10,11 +10,11 @@ class App extends Component {
         <Container fluid>
           <Grid columns={2} style={{"marginBottom": 0, "marginTop": 0, "marginRight": 0, "marginLeft": 0}}>
             <Grid.Row style={{"paddingTop": 0, "paddingBottom": 0}}>
-              <Grid.Column id="canvasContainer" style={{"paddingLeft": 0, "paddingRight": 0}} >
+              <Grid.Column id="canvasContainer" style={{"paddingLeft": 0, "paddingRight": 0}} width={10}>
                 <EarthScene />
               </Grid.Column>
 
-              <Grid.Column style={{"paddingLeft": 0, "paddingRight": 0}}>
+              <Grid.Column style={{"paddingLeft": 0, "paddingRight": 0}} width={6}>
                 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
                 commodo ligula eget dolor. Aenean massa strong. Cum sociis
                 natoque penatibus et magnis dis parturient montes, nascetur
