@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./HelloWorld3D.css";
+import "../HelloWorld3D.css";
 import checkerboard from "../images/checkerboard.jpg";
 
 // https://github.com/stemkoski/stemkoski.github.com/blob/master/Three.js/HelloWorld.html

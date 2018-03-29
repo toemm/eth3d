@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./Cube.css";
+import "../Cube.css";
 import * as THREE from "threejs-full-es6";
 import Stats from "../../node_modules/three/examples/js/libs/stats.min.js";
 

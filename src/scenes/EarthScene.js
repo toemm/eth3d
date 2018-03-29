@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./EarthScene.css";
+import "../EarthScene.css";
 import * as THREE from "threejs-full-es6";
 import Stats from "../../node_modules/three/examples/js/libs/stats.min.js";
 import earthmap4k from "../ressources/earthmap1k.jpg";
@@ -12,7 +12,7 @@ import galaxy from "../ressources/galaxy_starfield.png";
  *  Erdkugel texturiert mit OrbitControls und Weltraum als Skybox
  *
  *  TODO: React Syntax verwenden + refactoring
- *  state(height, width) etc
+ *  state(height, width, mouseX, mouseY)
  */
 
 class EarthScene extends Component {
@@ -28,13 +28,19 @@ class EarthScene extends Component {
     var container, stats, controls, loader;
     var camera, scene, renderer;
     var element, positionInfo, height, width;
-    var geometry, material;
+    var geometry, material, intersected;
     var onRenderFcts = [];
 
     element = document.getElementById("canvasContainer");
     positionInfo = element.getBoundingClientRect();
     height = window.innerHeight;
     width = positionInfo.width;
+
+    var mouse = new THREE.Vector2();
+    var raycaster = new THREE.Raycaster();
+    var groupObjects = new THREE.Group();
+
+    var mouseDown = 0;
 
     ////////////////////////////////////////////////////////////
     //      Setup     //
@@ -85,6 +91,8 @@ class EarthScene extends Component {
         specular: new THREE.Color("grey")
       });
       var containerEarth = new THREE.Mesh(geometry, material);
+      containerEarth.name = "containerEarth";
+      groupObjects.add(containerEarth);
 
       // Wolken
       geometry = new THREE.SphereGeometry(0.51, 32, 32);
@@ -95,10 +103,11 @@ class EarthScene extends Component {
         transparent: true
       });
       var cloudMesh = new THREE.Mesh(geometry, material);
+      cloudMesh.name = "cloudMesh";
       containerEarth.add(cloudMesh); // Cloudmesh als Child von eartMesh -> bewegen sich zusammen
 
       // Erdkugel+Wolken hinzufügen
-      scene.add(containerEarth);
+      scene.add(groupObjects);
       containerEarth.position.set(0, 0, 0);
 
       // Erdkugel + Wolken Rotationen
@@ -116,6 +125,7 @@ class EarthScene extends Component {
         side: THREE.BackSide
       });
       var galaxyMesh = new THREE.Mesh(geometry, material);
+      galaxyMesh.name = "galaxyMesh";
       scene.add(galaxyMesh);
 
       ////////////////////////////////////////////////////////////
@@ -149,7 +159,7 @@ class EarthScene extends Component {
       function onWindowResize() {
         element = document.getElementById("canvasContainer");
         positionInfo = element.getBoundingClientRect();
-        height = window.innerHeight;
+        height = positionInfo.height;
         width = positionInfo.width;
 
         //console.log(height, width);
@@ -160,17 +170,102 @@ class EarthScene extends Component {
       }
 
       // Mouse Controls
-      var mouse = {x: 0, y: 0};
-      document.addEventListener("mousemove", event => {
-        mouse.x = (event.clientX / window.innerWidth) - 0.5;
-        mouse.y = (event.clientY / window.innerHeight) - 0.5;
-      }, false);
-      onRenderFcts.push((delta, now) => {
-        camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3);
-        camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3);
-        camera.lookAt(scene.position);
-      });
+      document.body.onmousedown = () => {
+        ++mouseDown;
+      }; // Check ob mouse gerade gedrückt wird
+      document.body.onmouseup = () => {
+        --mouseDown;
+      };
 
+      // Kommunizieren mit UI falls Objekt angeklickt
+      document.addEventListener(
+        "mousedown",
+        event => {
+          event.preventDefault();
+
+          element = document.getElementById("canvasContainer");
+          positionInfo = element.getBoundingClientRect();
+          height = positionInfo.height;
+          width = positionInfo.width;
+
+          mouse.x = event.clientX / width * 2 - 1;
+          mouse.y = -(event.clientY / height) * 2 + 1;
+
+          // Auswählen von Objekten (picking)
+          raycaster.setFromCamera(mouse, camera);
+          var intersects = raycaster.intersectObjects(
+            groupObjects.children,
+            true
+          );
+
+          if (intersects.length > 0) {
+            if (mouseDown) {
+              this.props.onPlanetClick(intersects[0].object.parent.name);
+              console.log("click");
+            }
+          }
+        },
+        false
+      );
+
+      // Objekte einfärben bei mouseover
+      document.addEventListener(
+        "mousemove",
+        event => {
+          event.preventDefault();
+
+          // Aktuelle width und height abfragen
+          element = document.getElementById("canvasContainer");
+          positionInfo = element.getBoundingClientRect();
+          height = positionInfo.height;
+          width = positionInfo.width;
+
+          mouse.x = event.clientX / width * 2 - 1;
+          mouse.y = -(event.clientY / height) * 2 + 1;
+
+          // Auswählen von Objekten (picking)
+          raycaster.setFromCamera(mouse, camera);
+          var intersects = raycaster.intersectObjects(
+            groupObjects.children,
+            true
+          );
+
+          // Mit Mauszeiger ausgewähltes Objekt färben
+          // TODO: eigentlich wird das Wolken Mesh als erstes angewählt
+          // aber auch die Erdkugel soll eingefärbt werden
+          if (intersects.length > 0) {
+            // Test ob neues ausgewähltes Objekt dem Alten entspricht
+            if (intersected !== intersects[0]) {
+              // Falls nicht, Farbe des alten Objekts auf Standard setzen
+              if (intersected) {
+                intersected.object.material.color.set(0xffffff); // white default
+                intersected.object.parent.material.color.set(0xffffff);
+              }
+              // altes Objekt überschreiben und neu einfärben
+              intersected = intersects[0];
+              intersected.object.material.color.set(0xdaf7a6);
+              intersected.object.parent.material.color.set(0xdaf7a6);
+            }
+            // Cursor Style ändern
+            document.body.style.cursor = "pointer";
+          } else if (intersected) {
+            // Falls kein Objekt ausgewählt wurde
+            // altes ausgewähltes Objekt zurücksetzen und Standardfarbe einfärben
+            intersected.object.material.color.set(0xffffff);
+            intersected.object.parent.material.color.set(0xffffff);
+            intersected = null;
+
+            // Cursor Style zurücksetzen
+            document.body.style.cursor = "auto";
+          }
+        },
+        false
+      );
+      onRenderFcts.push((delta, now) => {
+        //camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3);
+        //camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3);
+        //camera.lookAt(scene.position);
+      });
     };
 
     ////////////////////////////////////////////////////////////
