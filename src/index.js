@@ -1,54 +1,92 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import EarthScene from "./scenes/EarthScene";
-import { Container, Grid } from "semantic-ui-react";
-import registerServiceWorker from './registerServiceWorker';
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import "./style.css";
+import Canvas from "./components/canvas";
+import { Segment, Dimmer, Loader } from "semantic-ui-react";
+import registerServiceWorker from "./registerServiceWorker";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
+import Explore from "./components/explore";
+import Owner from "./components/owner";
+import About from "./components/about";
+import Header from "./components/header";
+import Footer from "./components/footer";
 
-
-
-
+/* TODO: alle CSS style Objekte in .css files einbinden
+ * Komponenten zusammenfassen in React Components
+*/
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      cickedObjectName: "asdf",
-    };
-  }
+  state = {
+    clickedObjectName: "asdf",
+    canvasLoading: true
+  };
 
-  componentDidMount() {
-
-  }
+  componentDidMount() {}
 
   onPlanetClick = planetObjectName => {
     this.setState({ clickedObjectName: planetObjectName });
-  }
+  };
 
-
+  onDoneLoading = loading => {
+    this.setState({ canvasLoading: loading });
+  };
 
   render() {
     return (
-      <div>
-        <Container fluid>
-          <Grid columns={2} style={{"marginBottom": 0, "marginTop": 0, "marginRight": 0, "marginLeft": 0}}>
-            <Grid.Row style={{"paddingTop": 0, "paddingBottom": 0}}>
-              <Grid.Column id="canvasContainer" style={{"paddingLeft": 0, "paddingRight": 0}} width={10}>
-                <EarthScene onPlanetClick={this.onPlanetClick}/>
-              </Grid.Column>
-              <h3>Name: {this.state.clickedObjectName}</h3>
-              <Grid.Column style={{"paddingLeft": 0, "paddingRight": 0}} width={6}>
-              </Grid.Column>
-            </Grid.Row>
+      <div id="app-container">
+        <div id="canvas">
+          <Segment id="canvasSegment" basic>
+            <Dimmer active={this.state.canvasLoading}>
+              <Loader
+                disabled={!this.state.canvasLoading}
+                content="Loading scene..."
+              />
+            </Dimmer>
+            <Canvas
+              onPlanetClick={this.onPlanetClick}
+              onDoneLoading={this.onDoneLoading}
+            />
+          </Segment>
+        </div>
 
-          </Grid>
-        </Container>
+        <div id="right">
+          <Header />
+
+          <div id="content">
+            <Switch>
+              <Route
+                exact
+                path="/"
+                render={() => (
+                  <Explore clickedPlanetName={this.state.clickedObjectName} />
+                )}
+              />
+
+              <Route exact path="/owner" render={() => <Owner />} />
+
+              <Route exact path="/about" render={() => <About />} />
+
+              <Route
+                exact
+                path="/:explore"
+                render={() => (
+                  <Explore clickedPlanetName={this.state.clickedObjectName} />
+                )}
+              />
+            </Switch>
+          </div>
+
+          <Footer />
+        </div>
       </div>
     );
   }
 }
 
-
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
+  document.getElementById("root")
+);
 registerServiceWorker();
-

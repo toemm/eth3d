@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import "../EarthScene.css";
 import * as THREE from "threejs-full-es6";
 import Stats from "../../node_modules/three/examples/js/libs/stats.min.js";
 import earthmap4k from "../ressources/earthmap1k.jpg";
@@ -15,7 +14,7 @@ import galaxy from "../ressources/galaxy_starfield.png";
  *  state(height, width, mouseX, mouseY)
  */
 
-class EarthScene extends Component {
+class Canvas extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -31,9 +30,9 @@ class EarthScene extends Component {
     var geometry, material, intersected;
     var onRenderFcts = [];
 
-    element = document.getElementById("canvasContainer");
+    element = document.getElementById("canvas");
     positionInfo = element.getBoundingClientRect();
-    height = window.innerHeight;
+    height = positionInfo.height;
     width = positionInfo.width;
 
     var mouse = new THREE.Vector2();
@@ -154,10 +153,8 @@ class EarthScene extends Component {
       scene.add(axes);
 
       // Window resizing, rerender
-      window.addEventListener("resize", onWindowResize, false);
-
-      function onWindowResize() {
-        element = document.getElementById("canvasContainer");
+      window.addEventListener("resize", () => {
+        element = document.getElementById("canvas");
         positionInfo = element.getBoundingClientRect();
         height = positionInfo.height;
         width = positionInfo.width;
@@ -167,7 +164,7 @@ class EarthScene extends Component {
         camera.updateProjectionMatrix();
 
         renderer.setSize(width, height);
-      }
+      });
 
       // Mouse Controls
       document.body.onmousedown = () => {
@@ -183,7 +180,7 @@ class EarthScene extends Component {
         event => {
           event.preventDefault();
 
-          element = document.getElementById("canvasContainer");
+          element = document.getElementById("canvas");
           positionInfo = element.getBoundingClientRect();
           height = positionInfo.height;
           width = positionInfo.width;
@@ -201,7 +198,6 @@ class EarthScene extends Component {
           if (intersects.length > 0) {
             if (mouseDown) {
               this.props.onPlanetClick(intersects[0].object.parent.name);
-              console.log("click");
             }
           }
         },
@@ -215,7 +211,7 @@ class EarthScene extends Component {
           event.preventDefault();
 
           // Aktuelle width und height abfragen
-          element = document.getElementById("canvasContainer");
+          element = document.getElementById("canvas");
           positionInfo = element.getBoundingClientRect();
           height = positionInfo.height;
           width = positionInfo.width;
@@ -266,6 +262,12 @@ class EarthScene extends Component {
         //camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3);
         //camera.lookAt(scene.position);
       });
+
+      return new Promise(resolve => {
+        // Canvas geladen -> LoadingFlag senden (false => lädt nicht mehr)
+        // Geht meistens zu schnell, als dass man das Ladesymbol sieht
+        this.props.onDoneLoading(false);
+      });
     };
 
     ////////////////////////////////////////////////////////////
@@ -306,4 +308,4 @@ class EarthScene extends Component {
   }
 }
 
-export default EarthScene;
+export default Canvas;

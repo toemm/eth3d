@@ -1,0 +1,103 @@
+html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+#root,
+#app-container {
+  height: 100%;
+  width: 100%;
+}
+
+#canvas {
+  bottom: 0px;
+  left: 0px;
+  top: 0px;
+  right: 50%;
+  height: 100%;
+  width: 50%;
+  min-width: auto;
+  min-height: auto;
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Flex Container mit 3 Child divs */
+#right {
+  bottom: 0px;
+  left: 50%;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+  width: 50%;
+  min-width: auto;
+  min-height: auto;
+  position: absolute;
+  display: flex;
+  display: -webkit-flex; /* Safari 6.1+ */
+  display: -ms-flexbox; /* IE 10 */
+  flex-direction: column;
+  -webkit-flex-direction: column; /* Safari 6.1+ */
+  -ms-flex-direction: column; /* IE 10 */
+  align-items: center;
+  padding-top: 14px;
+  padding-right: 14px;
+  padding-bottom: 14px;
+  padding-left: 14px;
+}
+
+/* Für Dimmer und Loader */
+#canvasSegment {
+  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+
+#header {
+  width: 100%;
+  border: none;
+  border-radius: 0px;
+  box-shadow: none;
+  flex: none;
+  -webkit-flex: none; /* Safari 6.1+ */
+  -ms-flex: none; /* IE 10 */
+}
+
+/* Nur Content darf sich ausbreiten*/
+#content {
+  width: 100%;
+  overflow-y: auto;
+  flex: auto;
+  -webkit-flex: auto; /* Safari 6.1+ */
+  -ms-flex: auto; /* IE 10 */
+}
+
+#footer {
+  width: 100%;
+  flex: none;
+  -webkit-flex: none; /* Safari 6.1+ */
+  -ms-flex: none; /* IE 10 */
+}
+
+/* Misc */
+a {
+  color: inherit;
+}
+
+@media only screen and (max-width: 800px) {
+  #canvas {
+    width: 100%;
+  }
+
+  #right {
+    visibility: hidden;
+    width: 0%;
+  }
+}
